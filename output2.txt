@@ -1,0 +1,15 @@
+The size of the array is 9
+Element inserted
+Element inserted
+Element inserted
+Element inserted
+Element inserted
+Element inserted
+Element inserted
+(3 (14 (13 8) 20 (7 9)))
+The element 9 is found at index: 4
+The element 13 is found at index: 5
+Element removed
+(3 (14 (13) 20 (7 9)))
+Element inserted
+(3 (14 (13 18) 20 (7 9)))

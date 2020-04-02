@@ -152,6 +152,7 @@ public:
     
     DT& getKey();
     void setKey(DT& x);
+    void insert(DT& parent, DT& child);
     
     ~ArrayGLL();//destructor
 };
@@ -195,6 +196,34 @@ public:
         firstFree = anotherOne.firstFree;
         return (*this);
     }
+template<class DT>
+void ArrayGLL<DT>::insert(DT& parent, DT& child){
+    //In this method we will insert data into this tree.
+    // First we will start with an empty tree(array)
+    // The root that is passed will indicate rather it has a parent or not
+    // if the parent is -1 it will be the root
+    // if the parent is !(-1) it will become a child of that node
+    // if a parent has multiple children we need to figure out how to make levels
+    if(parent == -1){
+        myGLL[firstFree].setInfo(child);
+     
+    }
+    int rootIndex = find(parent);
+    if(find(parent) == -1){
+        return;
+    }
+    int nodeIndex = firstFree;
+    firstFree = myGLL[firstFree].getNext();
+    myGLL[nodeIndex].setInfo(child);
+    
+    myGLL[rootIndex].setDown(nodeIndex);
+    int tempDown = myGLL[rootIndex].getDown();
+    myGLL[nodeIndex].setNext(tempDown);
+    
+    myGLL[nodeIndex].setDown(-1);
+    return;
+    
+}
 
     template<class DT>
     void ArrayGLL<DT>::display(){// bonus
@@ -458,61 +487,50 @@ it into an int . As exits cases fail and it eventually back track to test the ot
 int main() {
     
     cout<<"Hello"<<endl;
-    int noElements,value,next,down,parentPos;
-    int pos = -1;
-    int keyValues;
-    int zero = 0;
-    GLRow<int> oneRow(zero);// This is statically defined
-    
-    //All variables must be defined
-    
+  
+    int noElements;
+    char command;
+    int value, pos;
     cin>> noElements;
-    ArrayGLL<int> firstGLL(noElements);
+   ArrayGLL<int>* firstGLL = new ArrayGLL<int>(noElements);
     
-    for(int i = 0; i < noElements; ++i){
-        cin >> value >> next >> down ;
-        oneRow.setInfo(value);
-        oneRow.setNext(next);
-        oneRow.setDown(down);
-        firstGLL[i] = oneRow;
-        
+    while(cin >> command){
+    
+        switch(command){
+            case 'I':{
+                cin>> pos>>value;
+               // if(pos == -1){
+                 //   (*firstGLL).setFirstElement(0);
+                //}
+                (*firstGLL).insert(pos,value);
+                break;
+            }
+                
+            case 'D':{
+                cout<<firstGLL<<endl;
+                break;
+            }
+                
+            case 'F':{
+                              
+                    break;
+            }
+            case 'P':{
+                              
+                    break;
+            }
+            case 'R':{
+                              
+                break;
+            }
+    
+            default: cout<<"Invalid command"<<endl;
+            break;
+        }
     }
-   keyValues = 25;
-    firstGLL.setKey(keyValues);
-     firstGLL.setFirstFree(8);// I changed this to eight since it was the only way to reach all 3 empties
-     firstGLL.setFirstElement(2);// setter done
-    cout<<"\n\n";
-     cout<<"This is the Ostream operator for firstGLL: \n"<<firstGLL<<endl;//This is for ostream I think
-     //firstGLL.display();// parenthes format
-    
-     ArrayGLL<int>* secondGLL = new ArrayGLL<int>(firstGLL);
-     int passByRef = 600;
-     int passByRef2 = 700;
-     (*secondGLL)[1].setInfo(passByRef);
-     (*secondGLL)[2].setInfo(passByRef2);
-    (*secondGLL).setKey(keyValues);
-    //cout<< "This is what's in the array: "<< (*secondGLL)<<endl;
-    cout<<"This is the Ostream Operator for secondGLL: \n"<<(*secondGLL)<<endl;// ostream
-    //(*secondGLL).display();// parenthese format
-
-    
-    //I moved everything to ostream to demonstrate ostream.
-    /*The code below I left since the pdf said the variables in main need to be defined. I was going to move it
-     to ostream. However I didnt want that to count against me.*/
-    pos = (*secondGLL).find(keyValues);
-    if(pos != -1){
-        cout<<(*secondGLL)[pos]<<endl;//
-        (*secondGLL).findDisplayPath(keyValues);
-    }
-    
-    parentPos = (*secondGLL).parentPos(keyValues);
    
-    
-    if(parentPos != -1){
-        cout<< (*secondGLL)[parentPos]<<endl;
-    }
 
-    delete secondGLL;
+    delete firstGLL;
 
     return 0;
 }
