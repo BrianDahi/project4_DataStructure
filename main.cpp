@@ -153,6 +153,7 @@ public:
     DT& getKey();
     void setKey(DT& x);
     void insert(DT& parent, DT& child);
+    int insertHelper(DT& parent, DT& child, int root);
     
     ~ArrayGLL();//destructor
 };
@@ -170,6 +171,14 @@ public:
         myGLL = new GLRow<DT> [size];
         maxSize = size;
         firstElement = 0;
+       
+        for(int i = 0; i < maxSize;++i){
+            if(i == maxSize -1){
+                myGLL[i].setNext(-1);
+            }
+            myGLL[i].setNext(i + 1);
+            
+        }
         firstFree = 0;
     }
     template<class DT>
@@ -196,34 +205,58 @@ public:
         firstFree = anotherOne.firstFree;
         return (*this);
     }
+
 template<class DT>
-void ArrayGLL<DT>::insert(DT& parent, DT& child){
-    //In this method we will insert data into this tree.
-    // First we will start with an empty tree(array)
-    // The root that is passed will indicate rather it has a parent or not
-    // if the parent is -1 it will be the root
-    // if the parent is !(-1) it will become a child of that node
-    // if a parent has multiple children we need to figure out how to make levels
-    if(parent == -1){
-        myGLL[firstFree].setInfo(child);
-     
+int ArrayGLL<DT>::insertHelper(DT& parent, DT& child, int root){
+    
+    // looking for parent
+    if (root == -1)
+        return -1;
+    
+    else if (myGLL[root].getInfo() == parent){
+            int newFirstFree = myGLL[firstFree].getNext();//first free is 1 for the first call
+            myGLL[firstFree].setInfo(child);
+            myGLL[firstFree].setNext(-1);
+       
+        if(myGLL[root].getDown() != -1){// root is now 1 since parent is 12
+             int tempRoot = myGLL[root].getDown();
+            while(myGLL[tempRoot].getNext() != -1){
+                tempRoot = myGLL[tempRoot].getNext();
+            }
+            myGLL[tempRoot].setNext(firstFree);
+        }
+        else{
+            myGLL[root].setDown(firstFree);//changes down
+        }
+            firstFree = newFirstFree;
+        return root;
     }
-    int rootIndex = find(parent);
-    if(find(parent) == -1){
-        return;
-    }
-    int nodeIndex = firstFree;
-    firstFree = myGLL[firstFree].getNext();
-    myGLL[nodeIndex].setInfo(child);
+    else {
+          int t =   insertHelper(parent , child , myGLL[root].getNext());
+          if (t > -1)
+              return t;
+          else
+              return (insertHelper(parent , child , myGLL[root].getDown()));
+      }
     
-    myGLL[rootIndex].setDown(nodeIndex);
-    int tempDown = myGLL[rootIndex].getDown();
-    myGLL[nodeIndex].setNext(tempDown);
     
-    myGLL[nodeIndex].setDown(-1);
-    return;
-    
+    return 0;
 }
+    template<class DT>
+    void ArrayGLL<DT>::insert(DT& parent, DT& child){
+    
+        if(parent == -1){
+            int newFirstFree = myGLL[firstFree].getNext();
+            myGLL[firstFree].setInfo(child);
+            myGLL[firstFree].setNext(-1);
+            firstElement = firstFree;
+            firstFree = newFirstFree;// first free is now 1
+        }
+        else{
+            insertHelper(parent, child, firstElement);
+        }
+        cout<<"insertion"<<endl;
+    }
 
     template<class DT>
     void ArrayGLL<DT>::display(){// bonus
@@ -234,38 +267,43 @@ void ArrayGLL<DT>::insert(DT& parent, DT& child){
        // int info = myGLL[firstElement].getInfo();
         
         cout<<"parenthes format  Not done yet"<<endl;
-        //cout<< "( ";
-       // displayHelper(firstElement);
-       // cout<< " )"<<endl;
+        cout<< "( ";
+        displayHelper(firstElement);
+        cout<< " )"<<endl;
     }
     template<class DT>
     int ArrayGLL<DT>::displayHelper( int root){
         int next = myGLL[root].getNext();
-       
-       if(root == -1){
-            return -1;
-       }
-        else{
-            // if down open
-            if(myGLL[root].getDown() != -1){
-                           cout<< "( ";
-            }
-            if( next != -1 || next == -1){
-                        cout<< myGLL[root].getInfo()<<" ";
-                                    
-            }
-            int tempNext = displayHelper( myGLL[root].getNext());
-           
-            if( tempNext != -1){
-                cout<< myGLL[root].getInfo();
-                    return tempNext;
-            }
-          
-            else {
-                cout<< " )";
-                    return -1;
-                  }
-            }
+                       int down = myGLL[root].getDown();
+                      if(root == -1){
+                           return -1;
+                      }
+                       else{
+                           // if down open
+                           if(myGLL[root].getDown() != -1){
+                                          cout<< "( ";
+                           }
+                           if( next != -1 || next == -1){
+                                       cout<< myGLL[root].getInfo()<<" ";
+
+                           }
+                           int tempDown = displayHelper( myGLL[root].getDown());
+                           int tempNext = displayHelper( myGLL[root].getNext());
+
+                           
+                           if( tempNext != -1){
+                               cout<< myGLL[root].getInfo();
+                                   return tempNext;
+                           }
+                          /* if(tempDown != -1){
+                               cout<< "( ";
+                                   return tempDown;
+                           }*/
+                           else {
+                               cout<< " )";
+                                   return -1;
+                                 }
+                           }
     }
 
 
@@ -275,33 +313,22 @@ Both would be exit cases for the recurison. After the two if statments we enter 
 it into an int . As exits cases fail and it eventually back track to test the other part of the tree. */
     template<class DT>
     int ArrayGLL<DT>::find(DT& key){
-        
-        int index = findIndex(key,firstElement);
-        return index;
-        
+        return findIndex(key,firstElement);
     }
     template<class DT>
     int ArrayGLL<DT>::findIndex(DT& key, int root){
    
-        if(root == -1){
-            return -1;
-        }
-        if(myGLL[root].getInfo() == key){
+          if (root == -1)
+              return -1;
+          else if (myGLL[root].getInfo() == key)
                 return root;
-        }
-        else{
-            int tempNext = findIndex(key, myGLL[root].getNext());
-            int tempDown = findIndex(key, myGLL[root].getDown());
-            if( tempNext != -1){
-                return tempNext;
+          else {
+                int t = findIndex(key,myGLL[root].getNext());
+                if (t > -1)
+                    return t;
+                else
+                    return (findIndex(key,myGLL[root].getDown()));
             }
-            if(tempDown != -1){
-                return tempDown;
-            }
-            else {
-                return -1;
-            }
-        }
         
     }
 
@@ -449,7 +476,7 @@ it into an int . As exits cases fail and it eventually back track to test the ot
                 s<< OneGLL[i]<<endl;
             }
         }
-        s<<"These are the emptie nodes"<<endl;
+       /* s<<"These are the emptie nodes"<<endl;
         for( int i = 0; i < OneGLL.maxSize; ++i){
                   if(OneGLL[i].getInfo() == 999){
                       s<<"Node: "<<i<<endl;
@@ -472,7 +499,7 @@ it into an int . As exits cases fail and it eventually back track to test the ot
         }
         
         s << "The size of the tree at "<<OneGLL.getFirstElement() <<": "<<OneGLL.size()<<endl;
-        s<<"The number of free at "<< OneGLL.getFirstFree() << ": "<<OneGLL.noFree()<<" Nodes that are free"<<endl;
+        s<<"The number of free at "<< OneGLL.getFirstFree() << ": "<<OneGLL.noFree()<<" Nodes that are free"<<endl;*/
         return s;
     }
 
@@ -507,20 +534,23 @@ int main() {
             }
                 
             case 'D':{
-                cout<<firstGLL<<endl;
+               // cout<<(*firstGLL)<<endl;
+                (*firstGLL).display();
                 break;
             }
                 
             case 'F':{
-                              
+                cin >> value;
+                cout<<"find"<<endl;
                     break;
             }
             case 'P':{
-                              
+                cout<<"parent"<<endl;
                     break;
             }
             case 'R':{
-                              
+                cin >> pos >> value;
+                cout<<"removed"<<endl;
                 break;
             }
     
