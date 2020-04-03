@@ -238,8 +238,6 @@ int ArrayGLL<DT>::insertHelper(DT& parent, DT& child, int root){
           else
               return (insertHelper(parent , child , myGLL[root].getDown()));
       }
-    
-    
     return 0;
 }
     template<class DT>
@@ -534,7 +532,7 @@ int main() {
             }
                 
             case 'D':{
-               // cout<<(*firstGLL)<<endl;
+                cout<<(*firstGLL)<<endl;
                 (*firstGLL).display();
                 break;
             }
