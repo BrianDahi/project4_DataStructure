@@ -243,7 +243,25 @@ int ArrayGLL<DT>::insertHelper(DT& parent, DT& child, int root){
     template<class DT>
     void ArrayGLL<DT>::insert(DT& parent, DT& child){
     
-        if(parent == -1){
+        int findParent = find(parent);
+        if(findParent == -1){
+            return;
+        }
+        int newFirstFree = firstFree;
+        firstFree += 1;
+        
+        myGLL[firstFree].setNext(child + 1);
+        myGLL[newFirstFree].setInfo(child);
+        
+        int tempDown = myGLL[findParent].getDown();
+        
+        myGLL[findParent].setDown(newFirstFree);
+        
+        myGLL[newFirstFree].setNext(tempDown);
+        
+        myGLL[newFirstFree].setDown(-1);
+        
+        /*if(parent == -1){
             int newFirstFree = myGLL[firstFree].getNext();
             myGLL[firstFree].setInfo(child);
             myGLL[firstFree].setNext(-1);
@@ -252,56 +270,47 @@ int ArrayGLL<DT>::insertHelper(DT& parent, DT& child, int root){
         }
         else{
             insertHelper(parent, child, firstElement);
-        }
+        }*/
         cout<<"insertion"<<endl;
     }
 
     template<class DT>
-    void ArrayGLL<DT>::display(){// bonus
-        /*This will display in parenthesis format*
-         if parent has child open parenthesis if no more or no children close
-         parenthesis*/
-        // if down is true open parenthese
-       // int info = myGLL[firstElement].getInfo();
+    void ArrayGLL<DT>::display(){
         
-        cout<<"parenthes format  Not done yet"<<endl;
-        cout<< "( ";
+       
         displayHelper(firstElement);
-        cout<< " )"<<endl;
+       
     }
     template<class DT>
     int ArrayGLL<DT>::displayHelper( int root){
-        int next = myGLL[root].getNext();
-                       int down = myGLL[root].getDown();
-                      if(root == -1){
-                           return -1;
-                      }
-                       else{
-                           // if down open
-                           if(myGLL[root].getDown() != -1){
-                                          cout<< "( ";
-                           }
-                           if( next != -1 || next == -1){
-                                       cout<< myGLL[root].getInfo()<<" ";
-
-                           }
-                           int tempDown = displayHelper( myGLL[root].getDown());
-                           int tempNext = displayHelper( myGLL[root].getNext());
-
-                           
-                           if( tempNext != -1){
-                               cout<< myGLL[root].getInfo();
-                                   return tempNext;
-                           }
-                          /* if(tempDown != -1){
-                               cout<< "( ";
-                                   return tempDown;
-                           }*/
-                           else {
-                               cout<< " )";
-                                   return -1;
-                                 }
-                           }
+        if(root == -1){
+                return -1;
+        }
+        if(myGLL[root].getInfo() == -1){
+            return -1;
+        }
+        cout<< myGLL[root].getInfo();
+        if((myGLL[root].getDown() != -1) && (myGLL[root].getNext() != -1)){
+            int tempDown = myGLL[root].getDown();
+            int tempNext =  myGLL[root].getNext();
+            cout<<" (";
+            displayHelper(tempDown);
+            cout<< ") ";
+            displayHelper(tempNext);
+        }
+        else if (myGLL[root].getDown() != -1){
+            root = myGLL[root].getDown();
+            cout<< " (";
+            displayHelper(root);
+            cout<< ")";
+        }
+        else if(myGLL[root].getNext() != -1){
+            root = myGLL[root].getNext();
+            cout<<" ";
+            displayHelper(root);
+        }
+      return -1;
+            
     }
 
 
@@ -316,17 +325,26 @@ it into an int . As exits cases fail and it eventually back track to test the ot
     template<class DT>
     int ArrayGLL<DT>::findIndex(DT& key, int root){
    
-          if (root == -1)
-              return -1;
-          else if (myGLL[root].getInfo() == key)
-                return root;
-          else {
-                int t = findIndex(key,myGLL[root].getNext());
-                if (t > -1)
-                    return t;
-                else
-                    return (findIndex(key,myGLL[root].getDown()));
-            }
+        if(root == -1){
+                   return -1;
+               }
+               if(myGLL[root].getInfo() == key){
+                       return root;
+               }
+               else{
+                   int tempNext = findIndex(key, myGLL[root].getNext());
+                   int tempDown = findIndex(key, myGLL[root].getDown());
+                   if( tempNext != -1){
+                       return tempNext;
+                   }
+                   if(tempDown != -1){
+                       return tempDown;
+                   }
+                   else {
+                       return -1;
+                   }
+               }
+
         
     }
 
@@ -468,37 +486,12 @@ it into an int . As exits cases fail and it eventually back track to test the ot
     ostream& operator <<  (ostream& s, ArrayGLL<DT>& OneGLL) {
         DT temp = OneGLL.getKey();
         s<<"These are the non-empty Nodes and where they can point to"<<endl;
-        for( int i = 0; i < OneGLL.size(); ++i){
-            if(OneGLL[i].getInfo() != 999){
-                s<<"Node: "<<i<<endl;
-                s<< OneGLL[i]<<endl;
-            }
+        for(int i = 0; i < 8; ++i){
+            s<<"Node: "<< i<<endl;
+            s<< OneGLL[i]<<endl;
         }
-       /* s<<"These are the emptie nodes"<<endl;
-        for( int i = 0; i < OneGLL.maxSize; ++i){
-                  if(OneGLL[i].getInfo() == 999){
-                      s<<"Node: "<<i<<endl;
-                      s<< OneGLL[i]<<endl;
-                  }
-              }
-        if( OneGLL.find(temp) == -1){
-            s<<"Key does not Exist!"<<endl;
-        }
-        else{
-            s<< "This is the Node where the key is located at: " << OneGLL.find(temp) << endl;
-            
-        }
-        OneGLL.findDisplayPath(temp);
-        if(OneGLL.parentPos(temp) == -1){
-            s<<"This is the root so no parent"<<endl;
-        }
-        else{
-            s<<OneGLL.parentPos(temp)<<" Is the parent node of the key "<<temp<<endl;
-        }
-        
-        s << "The size of the tree at "<<OneGLL.getFirstElement() <<": "<<OneGLL.size()<<endl;
-        s<<"The number of free at "<< OneGLL.getFirstFree() << ": "<<OneGLL.noFree()<<" Nodes that are free"<<endl;*/
-        return s;
+       
+             return s;
     }
 
     template <class DT>
@@ -512,27 +505,35 @@ it into an int . As exits cases fail and it eventually back track to test the ot
 int main() {
     
     cout<<"Hello"<<endl;
-  
-    int noElements;
+    ArrayGLL<int>* firstGLL;
+    int noElements, count;
     char command;
     int value, pos;
     cin>> noElements;
-   ArrayGLL<int>* firstGLL = new ArrayGLL<int>(noElements);
+   firstGLL = new ArrayGLL<int>(noElements);
     
-    while(cin >> command){
-    
+    while(cin>>command){
+       // cin>>command;
         switch(command){
             case 'I':{
                 cin>> pos>>value;
-               // if(pos == -1){
-                 //   (*firstGLL).setFirstElement(0);
-                //}
-                (*firstGLL).insert(pos,value);
+                ++count;
+                if(pos == -1){
+                    (*firstGLL)[0].setInfo(value);
+                    firstGLL->setFirstElement(0);
+                    firstGLL->setFirstFree(1);
+                    (*firstGLL)[firstGLL->getFirstFree()].setNext(2);
+                    
+                }
+                else{
+                    firstGLL->insert(pos, value);
+                }
+                //(*firstGLL).insert(pos,value);
                 break;
             }
                 
             case 'D':{
-                cout<<(*firstGLL)<<endl;
+              //  cout<<(*firstGLL)<<endl;
                 (*firstGLL).display();
                 break;
             }
@@ -540,6 +541,14 @@ int main() {
             case 'F':{
                 cin >> value;
                 cout<<"find"<<endl;
+                int valueFound;
+               valueFound = (*firstGLL).find(value);
+                for(int i = 0; i < count; ++i){
+                    if((*firstGLL)[i].getInfo() == (*firstGLL)[valueFound].getInfo()){
+                        cout<<"The element "<<(*firstGLL)[i].getInfo()<< " is found at index: "<< i<<endl;
+                        break;
+                    }
+                }
                     break;
             }
             case 'P':{
@@ -565,3 +574,25 @@ int main() {
 
 
 
+/* else{
+                          
+      
+           if( myGLL[root].getNext() != -1 || myGLL[root].getDown() == -1){
+                                      cout<< myGLL[root].getInfo()<<" ";
+
+                          }
+           if(myGLL[root].getNext()== -1 && myGLL[root].getDown()== -1){
+               cout<< ")";
+           }
+           if(myGLL[root].getDown() != -1){
+               cout<< "(";
+           }
+          // else{
+            //   cout<<")";
+           //}
+           int tempDown = displayHelper( myGLL[root].getDown());
+           int tempNext = displayHelper( myGLL[root].getNext());
+           if( tempNext != -1){
+                             // cout<< myGLL[root].getInfo();
+                   return tempNext;
+           }*/
