@@ -126,7 +126,7 @@ public:
     ArrayGLL<DT>& operator =(ArrayGLL<DT>& anotherOne);
     
     void display();// bonus we need to display in parenthesis format
-    int displayHelper( int root);
+    void displayHelper( int root);
     
     int find(DT& key);/* return  the index position where you find the element key; return false if not found, use recursive search**/
     int findIndex(DT& key, int root);
@@ -208,92 +208,26 @@ public:
         return (*this);
     }
 
-template<class DT>
-int ArrayGLL<DT>::insertHelper(DT& parent, DT& child, int root){
-    
-    // looking for parent
-    if (root == -1)
-        return -1;
-    
-    else if (myGLL[root].getInfo() == parent){
-            int newFirstFree = myGLL[firstFree].getNext();//first free is 1 for the first call
-            myGLL[firstFree].setInfo(child);
-            myGLL[firstFree].setNext(-1);
-       
-        if(myGLL[root].getDown() != -1){
-             int tempRoot = myGLL[root].getDown();
-            while(myGLL[tempRoot].getNext() != -1){
-                tempRoot = myGLL[tempRoot].getNext();
-            }
-            myGLL[tempRoot].setNext(firstFree);
-        }
-        else{
-            myGLL[root].setDown(firstFree);//changes down
-        }
-            firstFree = newFirstFree;
-        return root;
-    }
-    else {
-          int t =   insertHelper(parent , child , myGLL[root].getNext());
-          if (t > -1)
-              return t;
-          else
-              return (insertHelper(parent , child , myGLL[root].getDown()));
-      }
-    return 0;
-}
     template<class DT>
     void ArrayGLL<DT>::insertAChild(DT& parent, DT& child){
     
         int parentIndex = find(parent);
+        
         if(parentIndex == -1){
             return;
         }
-        int newFirstFree = getFirstFree();
-        setFirstFree(firstFree += 1);
+        int newFirstFree = firstFree;
+        //myGLL[firstFree].setNext(-1);
+        firstFree += 1;
                
-        myGLL[getFirstFree()].setNext(child + 1);
+        //myGLL[firstFree].setNext(child + 1);
         myGLL[newFirstFree].setInfo(child);
         int tempDown = myGLL[parentIndex].getDown();
         myGLL[parentIndex].setDown(newFirstFree);
         myGLL[newFirstFree].setNext(tempDown);
         myGLL[newFirstFree].setDown(-1);
-        
-        /*int newFirstFree = firstFree;
-        firstFree += 1;
-        
-        myGLL[firstFree].setNext(child + 1);
-        myGLL[newFirstFree].setInfo(child);
-        
-        int tempDown = myGLL[parentIndex].getDown();
-        
-        myGLL[parentIndex].setDown(newFirstFree);
-        
-        myGLL[newFirstFree].setNext(tempDown);
-        
-        myGLL[newFirstFree].setDown(-1);*/
-        
-
-        
-       /* if(parent == -1){
-            int newFirstFree = myGLL[firstFree].getNext();
-            myGLL[firstFree].setInfo(child);
-            myGLL[firstFree].setNext(-1);
-            firstElement = firstFree;
-            firstFree = newFirstFree;// first free is now 1
-        }
-        else{
-            insertHelper(parent, child, firstElement);
-        }*/
+  
         cout<<"insertion"<<endl;
-    }
-
-    template<class DT>
-    void ArrayGLL<DT>::display(){
-        
-       
-        displayHelper(firstElement);
-       
     }
 
 template<class DT>
@@ -333,15 +267,25 @@ void ArrayGLL<DT>::removeANode(DT& node){
 
 
 
+template<class DT>
+void ArrayGLL<DT>::display(){
+    
+   
+    displayHelper(firstElement);
+   
+}
+
 
     template<class DT>
-    int ArrayGLL<DT>::displayHelper( int root){
+    void ArrayGLL<DT>::displayHelper( int root){
+        //first two if's check for an exit
         if(root == -1){
-                return -1;
+                return ;
         }
         if(myGLL[root].getInfo() == -1){
-            return -1;
+            return ;
         }
+        
         cout<< myGLL[root].getInfo();
         if((myGLL[root].getDown() != -1) && (myGLL[root].getNext() != -1)){
             int tempDown = myGLL[root].getDown();
@@ -350,6 +294,7 @@ void ArrayGLL<DT>::removeANode(DT& node){
             displayHelper(tempDown);
             cout<< ") ";
             displayHelper(tempNext);
+            
         }
         else if (myGLL[root].getDown() != -1){
             root = myGLL[root].getDown();
@@ -362,7 +307,7 @@ void ArrayGLL<DT>::removeANode(DT& node){
             cout<<" ";
             displayHelper(root);
         }
-      return -1;
+        return;
     }
 
 
@@ -572,6 +517,7 @@ int main() {
                 ++count;
                 if(pos == -1){
                     (*firstGLL)[0].setInfo(value);
+                    (*firstGLL)[0].setNext(-1);
                     firstGLL->setFirstElement(0);
                     firstGLL->setFirstFree(1);
                     (*firstGLL)[firstGLL->getFirstFree()].setNext(2);
@@ -604,7 +550,10 @@ int main() {
                     break;
             }
             case 'P':{
-                cout<<"parent"<<endl;
+                cin>> value;
+                int parent = (*firstGLL).parentPos(value);
+                cout<<"The parent of "<<value<< " is: "<< (*firstGLL)[parent].getInfo()<<endl;
+                
                     break;
             }
             case 'R':{
