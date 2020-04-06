@@ -232,7 +232,63 @@ public:
 
 template<class DT>
 void ArrayGLL<DT>::removeANode(DT& node){
-    int index = find(node);
+    
+    int empty = 999;
+    int keyLocataion = find(node);
+    if(myGLL[keyLocataion].getDown() == -1){
+        if(myGLL[keyLocataion].getNext() == -1){
+            myGLL[keyLocataion].setInfo(empty);
+        }
+        else{
+            int next = myGLL[keyLocataion].getNext();
+            DT nextInfo = myGLL[next].getInfo();
+            int nextNext = myGLL[next].getNext();
+            int nextDown = myGLL[next].getDown();
+            
+            myGLL[keyLocataion].setInfo(nextInfo);
+            myGLL[keyLocataion].setNext(nextNext);
+            myGLL[keyLocataion].setDown(nextDown);
+            myGLL[next].setInfo(empty);
+        }
+    }
+    else{
+        int down = keyLocataion;
+        while(myGLL[down].getDown() != -1){
+            down = myGLL[down].getDown();
+        }
+        int downInfo = myGLL[down].getInfo();
+        
+        int downFind = find(downInfo);
+        
+        if(myGLL[downFind].getNext() == -1){
+            myGLL[keyLocataion].setDown(-1);
+            myGLL[downFind].setInfo(empty);
+        }
+        else{
+            int next = myGLL[downFind].getNext();
+            DT nextInfo = myGLL[next].getInfo();
+            int nextNext = myGLL[next].getNext();
+            int nextDown = myGLL[next].getDown();
+            
+            myGLL[downFind].setInfo(nextInfo);
+            myGLL[downFind].setNext(nextNext);
+            myGLL[downFind].setDown(nextDown);
+            myGLL[next].setInfo(empty);
+        }
+        myGLL[keyLocataion].setInfo(downInfo);
+    }
+}
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+   /* int index = find(node);
     if(index == -1){
         return ;
     }
@@ -240,6 +296,7 @@ void ArrayGLL<DT>::removeANode(DT& node){
         int tempNext = myGLL[index].getNext();
     
         if(tempNext == -1){
+            
             int invalid = 999;
             myGLL[index].setInfo(invalid);
             myGLL[index].setNext(-1);
@@ -260,10 +317,10 @@ void ArrayGLL<DT>::removeANode(DT& node){
     myGLL[index].setDown(-1);
     
     cout<< "Element removed"<<endl;
-    return;
+    return;*/
     
     
-}
+
 
 
 
@@ -558,7 +615,8 @@ int main() {
             }
             case 'R':{
                 cin >>  value;
-                firstGLL->removeANode(value);
+               // firstGLL->removeANode(value);
+                (*firstGLL).removeANode(value);
                 break;
             }
     
