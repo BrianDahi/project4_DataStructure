@@ -207,132 +207,94 @@ public:
         firstFree = anotherOne.firstFree;
         return (*this);
     }
-
+/* Here we add a child to the tree. In my main I if the pos is -1 I make that my root. then I move on
+ To this method if thats not the case. In this method we take in a parent and a child. we will do a find on the parent
+ and if the find returns a -1 we will go through the exit case which is the first if statment.
+ next we will create a variable called newFirstFree. this is a prviouse firstfree place holder and firstfree will be increamented
+ by 1. When passing in newFirstFree into [] it will set that child in the array and then we look at the parent down and set
+ it to newFirstFree. */
     template<class DT>
     void ArrayGLL<DT>::insertAChild(DT& parent, DT& child){
-    
         int parentIndex = find(parent);
-        
+     
         if(parentIndex == -1){
             return;
         }
         int newFirstFree = firstFree;
-        //myGLL[firstFree].setNext(-1);
+        
         firstFree += 1;
-               
-        //myGLL[firstFree].setNext(child + 1);
         myGLL[newFirstFree].setInfo(child);
         int tempDown = myGLL[parentIndex].getDown();
         myGLL[parentIndex].setDown(newFirstFree);
         myGLL[newFirstFree].setNext(tempDown);
         myGLL[newFirstFree].setDown(-1);
   
-        cout<<"insertion"<<endl;
     }
-
-template<class DT>
-void ArrayGLL<DT>::removeANode(DT& node){
+ /* Here we take a node in to be removed. We first do a find on the node and store in L for Location.
+  then we check to see if it is -1 for both next and down at that node, and if so we will replace it with empty(999)
+  else we will store some values to overwrite. */
+    template<class DT>
+    void ArrayGLL<DT>::removeANode(DT& node){
     
-    int empty = 999;
-    int keyLocataion = find(node);
-    if(myGLL[keyLocataion].getDown() == -1){
-        if(myGLL[keyLocataion].getNext() == -1){
-            myGLL[keyLocataion].setInfo(empty);
+        int empty = 999;
+        int tempNext,nextInfo,nextTwo,nextDown;
+        int L = find(node);
+        if(myGLL[L].getDown() == -1){
+            if(myGLL[L].getNext() == -1){
+                myGLL[L].setInfo(empty);
+            }
+        else{
+             tempNext = myGLL[L].getNext();
+             nextInfo = myGLL[tempNext].getInfo();
+             nextTwo = myGLL[tempNext].getNext();
+             nextDown = myGLL[tempNext].getDown();
+            
+            myGLL[L].setInfo(nextInfo);
+            myGLL[L].setNext(nextTwo);
+            myGLL[L].setDown(nextDown);
+            myGLL[tempNext].setInfo(empty);
+        }
         }
         else{
-            int next = myGLL[keyLocataion].getNext();
-            DT nextInfo = myGLL[next].getInfo();
-            int nextNext = myGLL[next].getNext();
-            int nextDown = myGLL[next].getDown();
-            
-            myGLL[keyLocataion].setInfo(nextInfo);
-            myGLL[keyLocataion].setNext(nextNext);
-            myGLL[keyLocataion].setDown(nextDown);
-            myGLL[next].setInfo(empty);
-        }
-    }
-    else{
-        int down = keyLocataion;
+            int down = L;
         while(myGLL[down].getDown() != -1){
             down = myGLL[down].getDown();
         }
-        int downInfo = myGLL[down].getInfo();
         
-        int downFind = find(downInfo);
+        int infoForDown = myGLL[down].getInfo();
         
-        if(myGLL[downFind].getNext() == -1){
-            myGLL[keyLocataion].setDown(-1);
-            myGLL[downFind].setInfo(empty);
+        int findInfo = find(infoForDown);
+        
+        if(myGLL[findInfo].getNext() == -1){
+            myGLL[L].setDown(-1);
+            myGLL[findInfo].setInfo(empty);
         }
         else{
-            int next = myGLL[downFind].getNext();
-            DT nextInfo = myGLL[next].getInfo();
-            int nextNext = myGLL[next].getNext();
-            int nextDown = myGLL[next].getDown();
+             tempNext = myGLL[findInfo].getNext();
+             nextInfo = myGLL[tempNext].getInfo();
+             nextTwo = myGLL[tempNext].getNext();
+             nextDown = myGLL[tempNext].getDown();
             
-            myGLL[downFind].setInfo(nextInfo);
-            myGLL[downFind].setNext(nextNext);
-            myGLL[downFind].setDown(nextDown);
-            myGLL[next].setInfo(empty);
+            myGLL[findInfo].setInfo(nextInfo);
+            myGLL[findInfo].setNext(nextTwo);
+            myGLL[findInfo].setDown(nextDown);
+            myGLL[tempNext].setInfo(empty);
         }
-        myGLL[keyLocataion].setInfo(downInfo);
-    }
-}
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-   /* int index = find(node);
-    if(index == -1){
-        return ;
-    }
-    if(myGLL[index].getDown() == -1){
-        int tempNext = myGLL[index].getNext();
-    
-        if(tempNext == -1){
-            
-            int invalid = 999;
-            myGLL[index].setInfo(invalid);
-            myGLL[index].setNext(-1);
-            myGLL[index].setDown(-1);
-            
+        myGLL[L].setInfo(infoForDown);
         }
     }
-    
-    int replaceIndex = index;
-    while(myGLL[index].getDown() != -1){
-        index = myGLL[index].getDown();
-    }
-    myGLL[replaceIndex] = myGLL[index];
-    
-    int invalid = 999;
-    myGLL[index].setInfo(invalid);
-    myGLL[index].setNext(-1);
-    myGLL[index].setDown(-1);
-    
-    cout<< "Element removed"<<endl;
-    return;*/
-    
-    
 
 
-
-
-template<class DT>
-void ArrayGLL<DT>::display(){
-    
-   
+/* Here in display we are using the Parenthese format . So root ( parent(child child ) child parent(child child) child )
+ This is an example of the idea behind this. So we will make a couple of exit case for our recurison. first we will
+ check if root is -1 or if info of root is -1. then we will set the first info in this case it would be the root.
+ next we will check and see if it's down is not -1 and its next is not -1. If true then it will store the down and next
+  int temp variables and procced to recurisvly track and print.*/
+    template<class DT>
+    void ArrayGLL<DT>::display(){
     displayHelper(firstElement);
-   
-}
-
-
+        
+    }
     template<class DT>
     void ArrayGLL<DT>::displayHelper( int root){
         //first two if's check for an exit
@@ -349,7 +311,7 @@ void ArrayGLL<DT>::display(){
             int tempNext =  myGLL[root].getNext();
             cout<<" (";
             displayHelper(tempDown);
-            cout<< ") ";
+            cout<< " ) ";
             displayHelper(tempNext);
             
         }
@@ -357,7 +319,7 @@ void ArrayGLL<DT>::display(){
             root = myGLL[root].getDown();
             cout<< " (";
             displayHelper(root);
-            cout<< ")";
+            cout<< " )";
         }
         else if(myGLL[root].getNext() != -1){
             root = myGLL[root].getNext();
@@ -398,8 +360,6 @@ it into an int . As exits cases fail and it eventually back track to test the ot
                        return -1;
                    }
                }
-
-        
     }
 
 
@@ -539,11 +499,8 @@ it into an int . As exits cases fail and it eventually back track to test the ot
     template <class DT>
     ostream& operator <<  (ostream& s, ArrayGLL<DT>& OneGLL) {
         DT temp = OneGLL.getKey();
-        s<<"These are the non-empty Nodes and where they can point to"<<endl;
-        for(int i = 0; i < 8; ++i){
-            s<<"Node: "<< i<<endl;
-            s<< OneGLL[i]<<endl;
-        }
+        OneGLL.display();
+      
        
              return s;
     }
@@ -557,45 +514,44 @@ it into an int . As exits cases fail and it eventually back track to test the ot
 //end of arrayGLL
 
 int main() {
-    
-    cout<<"Hello"<<endl;
+
     ArrayGLL<int>* firstGLL;
     int noElements, count;
     char command;
     int value, pos;
     cin>> noElements;
    firstGLL = new ArrayGLL<int>(noElements);
-    
+    cout<<"The size of the array is "<< noElements<<endl;
     while(cin>>command){
        // cin>>command;
         switch(command){
             case 'I':{
                 cin>> pos>>value;
                 ++count;
+                cout<<"Element inserted"<<endl;
                 if(pos == -1){
-                    (*firstGLL)[0].setInfo(value);
-                    (*firstGLL)[0].setNext(-1);
-                    firstGLL->setFirstElement(0);
-                    firstGLL->setFirstFree(1);
+                    (*firstGLL)[0].setInfo(value);//38
+                    (*firstGLL)[0].setNext(-1);// root cannot have negative one
+                    firstGLL->setFirstElement(0);// thats where we are starting
+                    firstGLL->setFirstFree(1);//becauce zero has value
                     (*firstGLL)[firstGLL->getFirstFree()].setNext(2);
-                    
                 }
                 else{
                     firstGLL->insertAChild(pos, value);
                 }
-                //(*firstGLL).insert(pos,value);
+              
                 break;
             }
                 
             case 'D':{
-              //  cout<<(*firstGLL)<<endl;
-                (*firstGLL).display();
+                cout<<(*firstGLL)<<endl;
+              
                 break;
             }
                 
             case 'F':{
                 cin >> value;
-                cout<<"find"<<endl;
+               
                 int valueFound;
                valueFound = (*firstGLL).find(value);
                 for(int i = 0; i < count; ++i){
@@ -615,7 +571,7 @@ int main() {
             }
             case 'R':{
                 cin >>  value;
-               // firstGLL->removeANode(value);
+                cout<<"Element removed"<<endl;
                 (*firstGLL).removeANode(value);
                 break;
             }
